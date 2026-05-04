@@ -1,0 +1,58 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <algorithm>
+
+using namespace std;
+
+struct DSU {
+    vector<int> parent;
+    int components;
+    DSU(int n) {
+        parent.resize(n);
+        for (int i = 0; i < n; i++) parent[i] = i;
+        components = n;
+    }
+    int find(int i) {
+        if (parent[i] == i) return i;
+        return parent[i] = find(parent[i]);
+    }
+    bool unite(int i, int j) {
+        int root_i = find(i);
+        int root_j = find(j);
+        if (root_i != root_j) {
+            parent[root_i] = root_j;
+            components--;
+            return true;
+        }
+        return false;
+    }
+};
+
+int minimumCost(int n, int m, vector<tuple<int, int, int>>& edges) {
+    if (n == 1) return 0;
+    
+    sort(edges.begin(), edges.end(), [](const tuple<int, int, int>& a, const tuple<int, int, int>& b) {
+        return get<2>(a) < get<2>(b);
+    });
+
+    DSU dsu(n);
+    long long total_weight = 0;
+    int edges_count = 0;
+
+    for (const auto& edge : edges) {
+        int u = get<0>(edge);
+        int v = get<1>(edge);
+        int w = get<2>(edge);
+
+        if (dsu.unite(u, v)) {
+            total_weight += w;
+            edges_count++;
+        }
+    }
+
+    if (edges_count != n - 1) return -1;
+    return (int)total_weight;
+}
