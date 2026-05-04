@@ -1,0 +1,75 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <random>
+
+using namespace std;
+
+typedef unsigned long long ull;
+
+int longestBalancedFrequencySubarray(const vector<int>& arr) {
+    int n = arr.size();
+    if (n == 0) return 0;
+
+    unordered_map<int, ull> val_hashes;
+    mt19937_64 rng(1337); 
+    for (int x : arr) {
+        if (val_hashes.find(x) == val_hashes.end()) {
+            val_hashes[x] = rng();
+        }
+    }
+
+    int max_len = 1;
+    int max_unique = 0;
+
+    unordered_map<int, int> total_counts;
+    for(int x : arr) total_counts[x]++;
+    max_unique = total_counts.size();
+
+    for (int f = 1; f <= n; ++f) {
+        for (int k = 1; k <= max_unique && k * f <= n; ++k) {
+            int target_len = k * f;
+            if (target_len <= max_len) continue;
+
+            unordered_map<int, int> window_freq;
+            int distinct_in_window = 0;
+            int count_with_freq_f = 0;
+
+            for (int i = 0; i < target_len; ++i) {
+                int val = arr[i];
+                if (window_freq[val] == 0) distinct_in_window++;
+                window_freq[val]++;
+                if (window_freq[val] == f) count_with_freq_f++;
+                else if (window_freq[val] == f + 1) count_with_freq_f--;
+            }
+
+            if (distinct_in_window == k && count_with_freq_f == k) {
+                max_len = max(max_len, target_len);
+            }
+
+            for (int i = target_len; i < n; ++i) {
+                int old_val = arr[i - target_len];
+                if (window_freq[old_val] == f) count_with_freq_f--;
+                window_freq[old_val]--;
+                if (window_freq[old_val] == f) count_with_freq_f++;
+                if (window_freq[old_val] == 0) distinct_in_window--;
+
+                int new_val = arr[i];
+                if (window_freq[new_val] == 0) distinct_in_window++;
+                window_freq[new_val]++;
+                if (window_freq[new_val] == f) count_with_freq_f++;
+                else if (window_freq[new_val] == f + 1) count_with_freq_f--;
+
+                if (distinct_in_window == k && count_with_freq_f == k) {
+                    max_len = max(max_len, target_len);
+                    break; 
+                }
+            }
+        }
+    }
+
+    return max_len;
+}
