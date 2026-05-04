@@ -1,0 +1,95 @@
+//C++
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Node {
+    long long data;
+    Node* next;
+    Node* prev;
+    Node(long long val) : data(val), next(nullptr), prev(nullptr) {}
+};
+
+int main() {
+    int N, K;
+    if (!(cin >> N)) return 0;
+    if (!(cin >> K)) return 0;
+
+    if (N <= 0) return 0;
+
+    Node* head = nullptr;
+    Node* tail = nullptr;
+    for (int i = 0; i < N; i++) {
+        long long val;
+        cin >> val;
+        Node* newNode = new Node(val);
+        if (!head) {
+            head = newNode;
+            tail = newNode;
+        } else {
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
+        }
+    }
+
+    Node* curr = head;
+    Node* prevBlockEnd = nullptr;
+    Node* newOverallHead = nullptr;
+    bool shouldReverse = true;
+
+    while (curr != nullptr) {
+        if (shouldReverse) {
+            Node* blockStart = curr;
+            Node* blockTail = nullptr;
+            Node* nextNode = nullptr;
+            int count = 0;
+
+            Node* tempCurr = curr;
+            while (tempCurr != nullptr && count < K) {
+                blockTail = tempCurr;
+                nextNode = tempCurr->next;
+                
+                Node* oldNext = tempCurr->next;
+                tempCurr->next = tempCurr->prev;
+                tempCurr->prev = oldNext;
+                
+                tempCurr = oldNext;
+                count++;
+            }
+
+            if (prevBlockEnd) {
+                prevBlockEnd->next = blockTail;
+                blockTail->prev = prevBlockEnd;
+            } else {
+                newOverallHead = blockTail;
+            }
+            
+            blockStart->next = nextNode;
+            if (nextNode) nextNode->prev = blockStart;
+            
+            prevBlockEnd = blockStart;
+            curr = nextNode;
+        } else {
+            if (!newOverallHead) newOverallHead = curr;
+            int count = 0;
+            while (curr != nullptr && count < K) {
+                prevBlockEnd = curr;
+                curr = curr->next;
+                count++;
+            }
+        }
+        shouldReverse = !shouldReverse;
+    }
+
+    Node* temp = newOverallHead;
+    while (temp != nullptr) {
+        cout << temp->data << (temp->next ? " " : "");
+        temp = temp->next;
+    }
+    cout << endl;
+
+    return 0;
+}
