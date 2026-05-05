@@ -1,0 +1,93 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+struct XORBasis {
+    vector<int> basis;
+    void insert(int x) {
+        for (int b : basis) {
+            x = min(x, x ^ b);
+        }
+        if (x > 0) {
+            basis.push_back(x);
+            for (int i = basis.size() - 1; i > 0; i--) {
+                if (basis[i] > basis[i - 1]) swap(basis[i], basis[i - 1]);
+                else break;
+            }
+        }
+    }
+    int size() const {
+        return basis.size();
+    }
+};
+
+struct DSU {
+    vector<int> parent;
+    DSU(int n) {
+        parent.resize(n);
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+    int find(int i) {
+        if (parent[i] == i) return i;
+        return parent[i] = find(parent[i]);
+    }
+    void unite(int i, int j) {
+        int root_i = find(i);
+        int root_j = find(j);
+        if (root_i != root_j) parent[root_i] = root_j;
+    }
+};
+
+int calculateUniqueSubsetXOR(int n, int m, const vector<int>& codes, const vector<pair<int, int>>& edges) {
+    DSU dsu(n);
+    for (const auto& edge : edges) {
+        dsu.unite(edge.first, edge.second);
+    }
+
+    vector<XORBasis> council_bases(n);
+    vector<bool> has_members(n, false);
+
+    for (int i = 0; i < n; i++) {
+        int root = dsu.find(i);
+        council_bases[root].insert(codes[i]);
+        has_members[root] = true;
+    }
+
+    long long total_sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (has_members[i] && dsu.parent[i] == i) {
+            total_sum += (1LL << council_bases[i].size());
+        }
+    }
+
+    return (int)total_sum;
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector<int> codes(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> codes[i];
+    }
+    
+    vector<pair<int, int>> edges(m);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+        edges[i] = make_pair(u - 1, v - 1); // Convert to 0-based index
+    }
+    
+    // Call the user logic function
+    int result = calculateUniqueSubsetXOR(n, m, codes, edges);
+    
+    // Output the result
+    cout << result << endl;
+    
+    return 0;
+}
