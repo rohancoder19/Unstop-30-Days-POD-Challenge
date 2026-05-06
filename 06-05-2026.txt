@@ -1,0 +1,72 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+struct Element {
+    long long value;
+    int start_idx;
+    int end_idx;
+    int k_rank;
+
+    bool operator<(const Element& other) const {
+        return value < other.value;
+    }
+};
+
+long long findMaxKSubarraySums(int n, int k, vector<int>& arr) {
+    vector<long long> pref(n + 1, 0);
+    for (int i = 0; i < n; i++) {
+        pref[i + 1] = pref[i] + arr[i];
+    }
+
+    vector<vector<long long>> sorted_prefixes(n + 1);
+    vector<long long> all_prefs;
+    for (int i = 0; i <= n; i++) {
+        all_prefs.push_back(pref[i]);
+    }
+    sort(all_prefs.begin(), all_prefs.end());
+
+    priority_queue<Element> pq;
+
+    for (int i = 1; i <= n; i++) {
+        pq.push({pref[i] - all_prefs[0], 0, i, 0});
+    }
+
+    long long total_sum = 0;
+    int count = 0;
+
+    while (!pq.empty() && count < k) {
+        Element top = pq.top();
+        pq.pop();
+
+        total_sum += top.value;
+        count++;
+
+        if (top.k_rank + 1 < top.end_idx) {
+            int next_rank = top.k_rank + 1;
+            long long next_val = pref[top.end_idx] - all_prefs[next_rank];
+            pq.push({next_val, next_rank, top.end_idx, next_rank});
+        }
+    }
+
+    return total_sum;
+}
+
+int main() {
+    int n, k;
+    std::cin >> n >> k;
+    std::vector<int> arr(n);
+    for (int i = 0; i < n; i++) {
+        std::cin >> arr[i];
+    }
+    
+    // Call user logic function and print the output
+    int result = findMaxKSubarraySums(n, k, arr);
+    std::cout << result << std::endl;
+    return 0;
+}
