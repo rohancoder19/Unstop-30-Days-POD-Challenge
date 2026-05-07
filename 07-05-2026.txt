@@ -1,0 +1,115 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+const long long INF = 1e18;
+
+struct Edge {
+    int to;
+    int weight;
+};
+
+struct State {
+    int hub;
+    int mode; // 0 for Road, 1 for Rail
+    long long time;
+
+    bool operator>(const State& other) const {
+        return time > other.time;
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    if (!(cin >> n)) return 0;
+
+    vector<vector<Edge>> roadAdj(n);
+    int r;
+    cin >> r;
+    for (int i = 0; i < r; ++i) {
+        int u, v, t;
+        cin >> u >> v >> t;
+        roadAdj[u].push_back({v, t});
+        roadAdj[v].push_back({u, t});
+    }
+
+    vector<vector<Edge>> railAdj(n);
+    int s;
+    cin >> s;
+    for (int i = 0; i < s; ++i) {
+        int u, v, t;
+        cin >> u >> v >> t;
+        railAdj[u].push_back({v, t});
+        railAdj[v].push_back({u, t});
+    }
+
+    vector<bool> isIntermodal(n, false);
+    int m;
+    cin >> m;
+    for (int i = 0; i < m; ++i) {
+        int hubId;
+        cin >> hubId;
+        isIntermodal[hubId] = true;
+    }
+
+    int transferTime, src, dst;
+    cin >> transferTime >> src >> dst;
+
+    vector<vector<long long>> minTime(n, vector<long long>(2, INF));
+    priority_queue<State, vector<State>, greater<State>> pq;
+
+    minTime[src][0] = 0;
+    minTime[src][1] = 0;
+    pq.push({src, 0, 0});
+    pq.push({src, 1, 0});
+
+    while (!pq.empty()) {
+        State current = pq.top();
+        pq.pop();
+
+        if (current.time > minTime[current.hub][current.mode]) continue;
+        if (current.hub == dst) continue;
+
+        if (current.mode == 0) {
+            for (auto& edge : roadAdj[current.hub]) {
+                if (minTime[edge.to][0] > current.time + edge.weight) {
+                    minTime[edge.to][0] = current.time + edge.weight;
+                    pq.push({edge.to, 0, minTime[edge.to][0]});
+                }
+            }
+        } else {
+            for (auto& edge : railAdj[current.hub]) {
+                if (minTime[edge.to][1] > current.time + edge.weight) {
+                    minTime[edge.to][1] = current.time + edge.weight;
+                    pq.push({edge.to, 1, minTime[edge.to][1]});
+                }
+            }
+        }
+
+        if (isIntermodal[current.hub]) {
+            int nextMode = 1 - current.mode;
+            if (minTime[current.hub][nextMode] > current.time + transferTime) {
+                minTime[current.hub][nextMode] = current.time + transferTime;
+                pq.push({current.hub, nextMode, minTime[current.hub][nextMode]});
+            }
+        }
+    }
+
+    long long finalResult = min(minTime[dst][0], minTime[dst][1]);
+
+    if (finalResult >= INF) {
+        cout << -1 << endl;
+    } else {
+        cout << finalResult << endl;
+    }
+
+    return 0;
+}
