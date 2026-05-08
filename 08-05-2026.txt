@@ -1,0 +1,142 @@
+//C++
+
+#include <iostream>
+using namespace std;
+
+const int MAXN = 100000 + 5;
+const int MAXM = 400000 + 5;
+const int INF = 1000000000;
+
+// ---------- GRAPH STORAGE ----------
+int head[MAXN];
+int to[MAXM];
+int nxt[MAXM];
+int edgeCnt = 0;
+
+// ---------- ADD EDGE ----------
+void addEdge(int u, int v) {
+    to[edgeCnt] = v;
+    nxt[edgeCnt] = head[u];
+    head[u] = edgeCnt++;
+}
+
+// ---------- SIMPLE QUEUE ----------
+class Queue {
+public:
+    int arr[MAXN];
+    int frontIdx, rearIdx;
+
+    Queue() {
+        frontIdx = 0;
+        rearIdx = 0;
+    }
+
+    void push(int x) {
+        arr[rearIdx++] = x;
+    }
+
+    int pop() {
+        return arr[frontIdx++];
+    }
+
+    bool empty() {
+        return frontIdx == rearIdx;
+    }
+
+    void clear() {
+        frontIdx = rearIdx = 0;
+    }
+};
+
+// ---------- BFS ----------
+void bfs(int start, int n, int dist[]) {
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;
+    }
+
+    Queue q;
+
+    dist[start] = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+
+        int u = q.pop();
+
+        for (int e = head[u]; e != -1; e = nxt[e]) {
+
+            int v = to[e];
+
+            if (dist[v] == INF) {
+                dist[v] = dist[u] + 1;
+                q.push(v);
+            }
+        }
+    }
+}
+
+// ---------- MAIN ----------
+int main() {
+
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    // Initialize graph
+    for (int i = 0; i < n; i++) {
+        head[i] = -1;
+    }
+
+    // Read edges
+    for (int i = 0; i < m; i++) {
+
+        int u, v;
+        cin >> u >> v;
+
+        addEdge(u, v);
+        addEdge(v, u);
+    }
+
+    int hub1, hub2, destination;
+    cin >> hub1 >> hub2 >> destination;
+
+    // Distance arrays
+    static int dist1[MAXN];
+    static int dist2[MAXN];
+    static int distDest[MAXN];
+
+    // BFS from 3 sources
+    bfs(hub1, n, dist1);
+    bfs(hub2, n, dist2);
+    bfs(destination, n, distDest);
+
+    int answer = INF;
+
+    // Try every node as consolidation hub
+    for (int i = 0; i < n; i++) {
+
+        if (dist1[i] == INF ||
+            dist2[i] == INF ||
+            distDest[i] == INF) {
+            continue;
+        }
+
+        int total = dist1[i] + dist2[i] + distDest[i];
+
+        if (total < answer) {
+            answer = total;
+        }
+    }
+
+    // Output
+    if (answer == INF) {
+        cout << -1 << '\n';
+    } else {
+        cout << answer << '\n';
+    }
+
+    return 0;
+}
