@@ -1,0 +1,82 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+std::vector<std::string> user_logic(const std::vector<std::string>& cards) {
+    std::vector<std::string> current = cards;
+    bool changed = true;
+
+    while (changed) {
+        int n = current.size();
+        if (n < 3) break;
+
+        changed = false;
+        std::vector<bool> to_remove(n, false);
+
+        // Identify groups of 3 or more by Color
+        int i = 0;
+        while (i < n) {
+            int j = i + 1;
+            while (j < n && current[j][0] == current[i][0]) {
+                j++;
+            }
+            if (j - i >= 3) {
+                for (int k = i; k < j; k++) to_remove[k] = true;
+                changed = true;
+            }
+            i = j;
+        }
+
+        // Identify groups of 3 or more by Number
+        i = 0;
+        while (i < n) {
+            int j = i + 1;
+            while (j < n && current[j][1] == current[i][1]) {
+                j++;
+            }
+            if (j - i >= 3) {
+                for (int k = i; k < j; k++) to_remove[k] = true;
+                changed = true;
+            }
+            i = j;
+        }
+
+        // Create new list excluding marked cards
+        if (changed) {
+            std::vector<std::string> next;
+            for (int k = 0; k < n; k++) {
+                if (!to_remove[k]) {
+                    next.push_back(current[k]);
+                }
+            }
+            current = next;
+        }
+    }
+
+    return current;
+}
+
+int main() {
+    int n;
+    std::cin >> n;
+    
+    std::vector<std::string> cards(n);
+    for (int i = 0; i < n; ++i) {
+        std::cin >> cards[i];
+    }
+
+    auto result = user_logic(cards);
+
+    if (result.empty()) {
+        std::cout << "All cards removed!" << std::endl;
+    } else {
+        for (const auto& card : result) {
+            std::cout << card << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
