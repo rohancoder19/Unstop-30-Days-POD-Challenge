@@ -1,0 +1,56 @@
+//C++
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+
+vector<long long> computeFinalSizes(int numMinerals, vector<int>& initialSizes, int numDays) {
+    vector<long long> finalSizes(numMinerals);
+
+    for (int i = 0; i < numMinerals; ++i) {
+        long long currentSize = initialSizes[i];
+        
+        for (int day = 1; day <= numDays; ++day) {
+            if (day % 3 == 0) {
+                // Every third day, the mineral shrinks to half its size
+                currentSize /= 2;
+            } else {
+                // Otherwise, the mineral doubles in size
+                currentSize *= 2;
+            }
+        }
+        finalSizes[i] = currentSize;
+    }
+
+    return finalSizes;
+}
+
+int main() {
+    // Optimize I/O operations
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int numMinerals;
+    if (!(cin >> numMinerals)) return 0;
+
+    vector<int> initialSizes(numMinerals);
+    for (int i = 0; i < numMinerals; ++i) {
+        cin >> initialSizes[i];
+    }
+
+    int numDays;
+    cin >> numDays;
+
+    // Get the final sizes of the minerals after the specified number of days
+    vector<long long> result = computeFinalSizes(numMinerals, initialSizes, numDays);
+
+    // Output the final sizes space-separated
+    for (int i = 0; i < result.size(); ++i) {
+        cout << result[i] << (i == result.size() - 1 ? "" : " ");
+    }
+    cout << endl;
+
+    return 0;
+}
