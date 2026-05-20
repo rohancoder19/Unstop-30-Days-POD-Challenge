@@ -1,0 +1,65 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// Helper function to convert a decimal number to its octal string representation
+string toOctal(long long num) {
+    if (num == 0) return "0";
+    string octal = "";
+    while (num > 0) {
+        octal += to_string(num % 8);
+        num /= 8;
+    }
+    reverse(octal.begin(), octal.end());
+    return octal;
+}
+
+string user_logic(int N) {
+    // Handling edge cases as noted in the problem statement
+    if (N <= 0) return "1";
+    
+    long long MOD = 1000000007;
+
+    // Base Case: For N = 1, each vowel has 1 valid string ('a', 'e', 'i', 'o', 'u')
+    long long a = 1, e = 1, i_vow = 1, o = 1, u = 1;
+
+    // Iteratively calculate transitions for lengths up to N
+    for (int len = 2; len <= N; len++) {
+        long long next_a = (e + u) % MOD;
+        long long next_e = (a + i_vow) % MOD;
+        long long next_i = (e + o) % MOD;
+        long long next_o = (i_vow + u) % MOD;
+        long long next_u = (a + o) % MOD;
+
+        a = next_a;
+        e = next_e;
+        i_vow = next_i;
+        o = next_o;
+        u = next_u;
+    }
+
+    // Sum up the counts of all strings ending with different vowels
+    long long total_count = (a + e + i_vow + o + u) % MOD;
+
+    // Convert the total count to a base-8 (octal) string
+    return toOctal(total_count);
+}
+
+int main() {
+    // Optimize standard I/O operations for competitive programming limits
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int N;
+    if (cin >> N) {
+        string result = user_logic(N);
+        cout << result << "\n";
+    }
+    
+    return 0;
+}
