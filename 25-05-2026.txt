@@ -1,0 +1,52 @@
+//C++
+
+#include <iostream>
+#include <string>
+
+int getEnergy(char ch) {
+    if (ch >= 'a' && ch <= 'z') {
+        return ch - 'a' + 1;
+    } else if (ch >= '0' && ch <= '9') {
+        return (ch - '0') * 10;
+    }
+    return -1;
+}
+
+void collapse_chain(std::string &s) {
+    std::string result = "";
+
+    for (char ch : s) {
+        
+        if (!result.empty()) {
+            int topEnergy = getEnergy(result.back());
+            int currentEnergy = getEnergy(ch);
+
+           
+            if (topEnergy == currentEnergy) {
+                result.pop_back(); 
+                continue;          
+            }
+        }
+
+        result.push_back(ch);
+    }
+
+
+    if (result.empty()) {
+        std::cout << "-1\n";
+    } else {
+        std::cout << result << "\n";
+    }
+}
+
+int main() {
+
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
+    std::string s;
+    if (std::getline(std::cin, s)) {
+        collapse_chain(s);
+    }
+    return 0;
+}
