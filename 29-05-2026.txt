@@ -1,0 +1,95 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <utility>
+#include <stack>
+#include <algorithm>
+
+using namespace std;
+
+// Helper function for the first DFS pass on the original graph
+void dfs1(int node, const vector<vector<int>>& adj, vector<bool>& visited, stack<int>& st) {
+    visited[node] = true;
+    for (int neighbor : adj[node]) {
+        if (!visited[neighbor]) {
+            dfs1(neighbor, adj, visited, st);
+        }
+    }
+    st.push(node); // Push to stack when processing is complete
+}
+
+// Helper function for the second DFS pass on the transposed graph
+void dfs2(int node, const vector<vector<int>>& adjT, vector<bool>& visited, int& component_size) {
+    visited[node] = true;
+    component_size++;
+    for (int neighbor : adjT[node]) {
+        if (!visited[neighbor]) {
+            dfs2(neighbor, adjT, visited, component_size);
+        }
+    }
+}
+
+// Placeholder function for user logic
+int largest_scc(int N, const vector<pair<int, int>>& edges) {
+    // Nodes are 1-indexed (1 to N)
+    vector<vector<int>> adj(N + 1);
+    vector<vector<int>> adjT(N + 1);
+
+    // Build the original graph and its transpose
+    for (const auto& edge : edges) {
+        int u = edge.first;
+        int v = edge.second;
+        adj[u].push_back(v);
+        adjT[v].push_back(u); // Transpose edge
+    }
+
+    // Step 1: Order vertices by completion time using DFS
+    stack<int> st;
+    vector<bool> visited(N + 1, false);
+    for (int i = 1; i <= N; ++i) {
+        if (!visited[i]) {
+            dfs1(i, adj, visited, st);
+        }
+    }
+
+    // Step 2: Reset visited array for the second pass
+    fill(visited.begin(), visited.end(), false);
+
+    int max_scc_size = 0;
+
+    // Step 3: Process all vertices in order defined by the stack
+    while (!st.empty()) {
+        int node = st.top();
+        st.pop();
+
+        if (!visited[node]) {
+            int current_component_size = 0;
+            dfs2(node, adjT, visited, current_component_size);
+            max_scc_size = max(max_scc_size, current_component_size);
+        }
+    }
+
+    return max_scc_size;
+}
+
+int main() {
+    // Fast I/O
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int N, M;
+    if (cin >> N >> M) {
+        vector<pair<int, int>> edges(M);
+        for (int i = 0; i < M; ++i) {
+            int A, B;
+            cin >> A >> B;
+            edges[i] = make_pair(A, B);
+        }
+
+        int result = largest_scc(N, edges);
+        cout << result << "\n";
+    }
+
+    return 0;
+}
