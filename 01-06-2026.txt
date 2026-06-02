@@ -1,0 +1,83 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <queue>
+
+int starlight_jumps(int N, int M, int K, std::vector<int>& bits, std::vector<std::tuple<int, int, int, int, int>>& edges) {
+    int start_mask = 0;
+    for (int i = 0; i < K; i++) {
+        start_mask |= (1 << bits[i]);
+    }
+    
+    std::vector<std::vector<std::tuple<int, int, int, int>>> adj(N + 1);
+    for (int i = 0; i < M; i++) {
+        int u = std::get<0>(edges[i]);
+        int v = std::get<1>(edges[i]);
+        int cost = std::get<2>(edges[i]);
+        int bm = std::get<3>(edges[i]);
+        int flip_mask = std::get<4>(edges[i]);
+        adj[u].push_back({v, cost, bm, flip_mask});
+    }
+    
+    std::vector<std::vector<int>> dist(N + 1, std::vector<int>(1024, 1e9));
+    std::priority_queue<std::tuple<int, int, int>, std::vector<std::tuple<int, int, int>>, std::greater<std::tuple<int, int, int>>> pq;
+    
+    dist[1][start_mask] = 0;
+    pq.push({0, 1, start_mask});
+    
+    while (!pq.empty()) {
+        auto [d, u, mask] = pq.top();
+        pq.pop();
+        
+        if (d > dist[u][mask]) {
+            continue;
+        }
+        
+        if (u == N && mask == start_mask) {
+            return d;
+        }
+        
+        for (auto& edge : adj[u]) {
+            int v = std::get<0>(edge);
+            int cost = std::get<1>(edge);
+            int bm = std::get<2>(edge);
+            int flip_mask = std::get<3>(edge);
+            
+            if ((mask & bm) == bm) {
+                int next_mask = mask ^ flip_mask;
+                if (dist[u][mask] + cost < dist[v][next_mask]) {
+                    dist[v][next_mask] = dist[u][mask] + cost;
+                    pq.push({dist[v][next_mask], v, next_mask});
+                }
+            }
+        }
+    }
+    
+    return -1;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+    
+    int N, M, K;
+    if (!(std::cin >> N >> M >> K)) return 0;
+    
+    std::vector<int> bits(K);
+    for (int i = 0; i < K; i++) {
+        std::cin >> bits[i];
+    }
+    
+    std::vector<std::tuple<int, int, int, int, int>> edges(M);
+    for (int i = 0; i < M; i++) {
+        int u, v, cost, bm, flip_mask;
+        std::cin >> u >> v >> cost >> bm >> flip_mask;
+        edges[i] = {u, v, cost, bm, flip_mask};
+    }
+    
+    std::cout << starlight_jumps(N, M, K, bits, edges) << std::endl;
+    
+    return 0;
+}
