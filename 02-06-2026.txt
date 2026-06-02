@@ -1,0 +1,62 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+int count_divisible_subarrays(int n, int k, const vector<int>& arr) {
+    long long MOD = 1000000007;
+    
+    // Maps remainder -> frequency of its occurrence
+    unordered_map<int, int> rem_freq;
+    
+    // Base Case: A prefix sum of 0 has a remainder of 0 and has appeared once initially
+    rem_freq[0] = 1;
+    
+    long long current_prefix_sum = 0;
+    long long total_subarrays = 0;
+    
+    for (int i = 0; i < n; i++) {
+        current_prefix_sum += arr[i];
+        
+        // Find remainder and normalize it to handle negative values safely
+        int rem = current_prefix_sum % k;
+        if (rem < 0) {
+            rem += k;
+        }
+        
+        // If this remainder has been seen before, add its frequency to the total count
+        if (rem_freq.find(rem) != rem_freq.end()) {
+            total_subarrays = (total_subarrays + rem_freq[rem]) % MOD;
+        }
+        
+        // Increment the frequency of the current remainder
+        rem_freq[rem]++;
+    }
+    
+    return total_subarrays;
+}
+
+int main() {
+    // Optimize standard I/O streams for quick competitive programming inputs
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, k;
+    if (cin >> n >> k) {
+        vector<int> arr(n);
+        for (int i = 0; i < n; i++) {
+            cin >> arr[i];
+        }
+
+        // Call user-defined logic function
+        int result = count_divisible_subarrays(n, k, arr);
+
+        // Output the result
+        cout << result << "\n";
+    }
+
+    return 0;
+}
