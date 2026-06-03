@@ -1,0 +1,39 @@
+//C++
+
+#include <iostream>
+#include <string>
+
+void process_dashes(int n, std::string s) {
+    std::string result = "";
+
+    for (char ch : s) {
+        if (ch == '_') {
+            if (result.empty()) {
+                std::cout << "-1\n";
+                return;
+            }
+            result.pop_back();
+        } else {
+
+            result.push_back(ch);
+        }
+    }
+
+    if (result.empty()) {
+        std::cout << "-1\n";
+    } else {
+        std::cout << result << "\n";
+    }
+}
+
+int main() {
+    int n;
+    std::string s;
+
+    std::cin >> n;
+    std::cin >> s;
+
+    process_dashes(n, s);
+
+    return 0;
+}
