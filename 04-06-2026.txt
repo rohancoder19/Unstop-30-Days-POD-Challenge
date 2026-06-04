@@ -1,0 +1,59 @@
+//C++
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Placeholder structure as shown in the template
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+void user_logic(int n, const vector<int>& level_order) {
+    int current_index = 0;
+    bool first = true;
+
+    // Traverse strictly down the left child path
+    while (current_index < level_order.size()) {
+        if (!first) {
+            cout << " ";
+        }
+        cout << level_order[current_index];
+        first = false;
+
+        // Move to the left child index position
+        current_index = 2 * current_index + 1;
+    }
+    cout << "\n";
+}
+
+int main() {
+    // Optimize standard I/O operations for performance
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t;
+    if (cin >> t) {
+        while (t--) {
+            int n;
+            cin >> n;
+            
+            // A complete binary tree of N levels has (2^N - 1) nodes
+            int number_of_nodes = (1 << n) - 1;
+            vector<int> level_order(number_of_nodes);
+            
+            for (int i = 0; i < number_of_nodes; ++i) {
+                cin >> level_order[i];
+            }
+            
+            // Call the tracking logic per testcase
+            user_logic(n, level_order);
+        }
+    }
+    return 0;
+}
