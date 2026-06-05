@@ -1,0 +1,50 @@
+//C++
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Forward declaration of user_logic
+void user_logic(int n, std::vector<int>& nums);
+
+int main() {
+    // Optimize standard I/O streams for quick competitive programming inputs
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    if (cin >> n) {
+        std::vector<int> nums(n);
+        for (int i = 0; i < n; ++i) {
+            cin >> nums[i];
+        }
+
+        // Call the user logic function to process unique values and print the result
+        user_logic(n, nums);
+    }
+
+    return 0;
+}
+
+void user_logic(int n, std::vector<int>& nums) {
+    if (n == 0) {
+        cout << 0 << "\n";
+        return;
+    }
+
+    long long special_sum = 0;
+
+    // Process the first element as it is always a unique start
+    special_sum += (1LL << nums[0]);
+
+    // Loop through the rest of the array to capture unique values
+    for (int i = 1; i < n; i++) {
+        if (nums[i] != nums[i - 1]) {
+            special_sum += (1LL << nums[i]);
+        }
+    }
+
+    // Output the resultant special sum
+    cout << special_sum << "\n";
+}
