@@ -1,0 +1,71 @@
+//C++
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+
+using namespace std;
+
+void specialmsg(std::string s, std::vector<std::pair<std::string, std::string>> vocab) {
+    // Map to store acronym key-value pairs for quick O(1) lookups
+    unordered_map<string, string> dict;
+    for (const auto& p : vocab) {
+        dict[p.first] = p.second;
+    }
+
+    string result = "";
+    string acronym = "";
+    bool in_bracket = false;
+
+    for (char ch : s) {
+        if (ch == '(') {
+            in_bracket = true;
+            acronym = ""; // Reset acronym buffer
+        } 
+        else if (ch == ')') {
+            in_bracket = false;
+            // Check if the acronym exists in our dictionary
+            if (dict.find(acronym) != dict.end()) {
+                result += dict[acronym];
+            } else {
+                result += "?";
+            }
+        } 
+        else if (in_bracket) {
+            // Collect characters inside the brackets
+            acronym += ch;
+        } 
+        else {
+            // Append plain text outside brackets
+            result += ch;
+        }
+    }
+
+    // Output the fully formatted string followed by a newline
+    cout << result << "\n";
+}
+
+int main() {
+    // Optimize standard input/output streams for speed
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    std::string s;
+    int n;
+    
+    if (std::getline(std::cin, s)) {
+        if (std::cin >> n) {
+            std::cin.ignore(); // Clean up trailing newline after reading an integer
+            
+            std::vector<std::pair<std::string, std::string>> vocab(n);
+            for (int i = 0; i < n; ++i) {
+                std::cin >> vocab[i].first >> vocab[i].second;
+            }
+            
+            // Execute replacement routine
+            specialmsg(s, vocab);
+        }
+    }
+    return 0;
+}
